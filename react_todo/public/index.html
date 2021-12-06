@@ -27,6 +27,8 @@
         { key: getKey(), text: 'Get some good sleep', done: false },
       ]);
 
+      const [filter, setFilter] = React.useState('ALL');
+
       const handleCheck = checked => {
         const newItems = items.map(item => {
           if (item.key === checked.key) {
@@ -41,13 +43,24 @@
         setItems([...items, { key:getKey(), text, done: false }])
       };
 
+      const handleFilterChange = value => setFilter(value);
+      const displayItems = items.filter(item => {
+        if (filter === 'ALL') return true;
+        if (filter === 'TODO') return !item.done;
+        if (filter === 'DONE') return item.done;
+      })
+
       return (
         <div className="panel">
           <div className="panel-heading">
             ⚛️ React ToDo
           </div>
           <Input onAdd={handleAdd} />
-          {items.map(item => (
+          <Filter
+            onChange={handleFilterChange}
+            value={filter}
+          />
+          {displayItems.map(item => (
             <TodoItem
               key={item.key}
               item={item}
@@ -55,7 +68,7 @@
             />
           ))}
           <div className="panel-block">
-            {items.length} items
+            {displayItems.length} items
           </div>
         </div>
       );
@@ -98,7 +111,7 @@
       return (
         <div className="panel-block">
           <input
-            class="input"
+            className="input"
             type="text"
             placeholder="Enter to add"
             value={text}
@@ -107,6 +120,33 @@
           />
         </div>
       )
+    }
+
+    function Filter({ value, onChange }) {
+      const handleClick = (key, e) => {
+        e.preventDefault();
+        onChange(key);
+      };
+
+      return (
+        <div className="panel-tabs">
+          <a
+            href="#"
+            onClick={handleClick.bind(null, 'ALL')}
+            className={classNames({ 'is-active': value === 'ALL' })}
+          >ALL</a>
+          <a
+            href="#"
+            onClick={handleClick.bind(null, 'TODO')}
+            className={classNames({ 'is-active': value === 'TODO' })}
+          >TODO</a>
+          <a
+            href="#"
+            onClick={handleClick.bind(null, 'DONE')}
+            className={classNames({ 'is-active': value === 'DONE' })}
+          >DONE</a>
+        </div>
+      );
     }
 
     function App() {
